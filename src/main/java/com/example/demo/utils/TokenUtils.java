@@ -14,6 +14,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
@@ -21,7 +22,7 @@ import java.util.Date;
 @Component
 public class TokenUtils {
 
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
     private static UserMapper staticUserMapper;
