@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.demo.LoginUser;
+import com.example.demo.utils.LoginUser;
 import com.example.demo.commom.Result;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
@@ -15,7 +15,6 @@ import com.example.demo.utils.TokenUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
