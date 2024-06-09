@@ -52,6 +52,7 @@ public class UserController {
         if (user.getPassword() == null) {
             user.setPassword("123456");
         }
+        user.setRole(2);
         userMapper.insert(user);
         return Result.success();
     }
@@ -72,8 +73,8 @@ public class UserController {
         return Result.success();
     }
 
-    @PostMapping("/deleteBatch")
-    public Result<?> deleteBatch(@RequestBody List<Integer> ids) {
+    @DeleteMapping
+    public Result<?> deleteBatch(@RequestParam List<Integer> ids) {
         userMapper.deleteBatchIds(ids);
         return Result.success();
     }
@@ -84,39 +85,37 @@ public class UserController {
         return Result.success();
     }
 
-    @GetMapping
-    public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
-                          @RequestParam(defaultValue = "10") Integer pageSize,
-                          @RequestParam(defaultValue = "") String search) {
-        LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
-        if (StringUtils.isNotBlank(search)) {
-            wrappers.like(User::getNickName, search);
+    @GetMapping("/{id}")
+    public Result<?> info(@PathVariable Long id) {
+        User user = userMapper.selectById(id);
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < user.getPassword().length(); i++) {
+            password.append("*");
         }
-        wrappers.like(User::getRole, 2);
-        Page<User> userPage = userMapper.selectPage(new Page<>(pageNum, pageSize), wrappers);
-        return Result.success(userPage);
+        user.setPassword(password.toString());
+        return Result.success(user);
     }
 
-    @GetMapping("/usersearch")
-    public Result<?> list2(
+    @GetMapping
+    public Result<?> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "") String search1,
-            @RequestParam(defaultValue = "") String search2,
-            @RequestParam(defaultValue = "") String search3,
-            @RequestParam(defaultValue = "") String search4) {
+            @RequestParam(defaultValue = "") String id,
+            @RequestParam(defaultValue = "") String username,
+            @RequestParam(defaultValue = "") String phone,
+            @RequestParam(defaultValue = "") String address) {
         LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
-        if (StringUtils.isNotBlank(search1)) {
-            wrappers.like(User::getId, search1);
+        if (StringUtils.isNotBlank(id)) {
+            wrappers.like(User::getId, id);
         }
-        if (StringUtils.isNotBlank(search2)) {
-            wrappers.like(User::getNickName, search2);
+        if (StringUtils.isNotBlank(username)) {
+            wrappers.like(User::getUsername, username);
         }
-        if (StringUtils.isNotBlank(search3)) {
-            wrappers.like(User::getPhone, search3);
+        if (StringUtils.isNotBlank(phone)) {
+            wrappers.like(User::getPhone, phone);
         }
-        if (StringUtils.isNotBlank(search4)) {
-            wrappers.like(User::getAddress, search4);
+        if (StringUtils.isNotBlank(address)) {
+            wrappers.like(User::getAddress, address);
         }
         wrappers.like(User::getRole, 2);
         Page<User> userPage = userMapper.selectPage(new Page<>(pageNum, pageSize), wrappers);
