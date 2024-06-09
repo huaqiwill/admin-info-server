@@ -10,6 +10,7 @@ import com.example.demo.mapper.PortCheckMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 
 @RestController
@@ -19,15 +20,24 @@ public class PortCheckController {
     @Resource
     PortCheckMapper portCheckMapper;
 
-    @PostMapping("/save")
-    public Result<?> save(@RequestBody PortCheck portCheck) {
-        if (portCheck.getId() != null && portCheckMapper.selectById(portCheck.getId()) != null) {
-            portCheckMapper.updateById(portCheck);
-        } else {
-            portCheckMapper.insert(portCheck);
-        }
+    @PostMapping
+    public Result<?> add(@RequestBody PortCheck portCheck) {
+        portCheckMapper.insert(portCheck);
         return Result.success();
     }
+
+    @PutMapping
+    public Result<?> update(@RequestBody PortCheck portCheck) {
+        portCheckMapper.updateById(portCheck);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    public Result<?> info(@PathVariable Long id) {
+        PortCheck portCheck = portCheckMapper.selectById(id);
+        return Result.success(portCheck);
+    }
+
 
     @DeleteMapping("/{id}")
     public Result<?> delete(@PathVariable Long id) {
@@ -35,14 +45,30 @@ public class PortCheckController {
         return Result.success();
     }
 
+    @DeleteMapping
+    public Result<?> deleteBatch(@RequestParam List<Long> ids) {
+        portCheckMapper.deleteBatchIds(ids);
+        return Result.success();
+    }
+
     @GetMapping
     public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
                           @RequestParam(defaultValue = "10") Integer pageSize,
-                          @RequestParam(defaultValue = "") String pName) {
+                          @RequestParam(defaultValue = "") String biologyNum,
+                          @RequestParam(defaultValue = "") String portName,
+                          @RequestParam(defaultValue = "") String abundance) {
         LambdaQueryWrapper<PortCheck> wrappers = Wrappers.lambdaQuery();
 
-        if (StringUtils.isNotBlank(pName)) {
-            wrappers.like(PortCheck::getPortName, pName);
+        if (StringUtils.isNotBlank(biologyNum)) {
+            wrappers.like(PortCheck::getPortName, biologyNum);
+        }
+
+        if (StringUtils.isNotBlank(portName)) {
+            wrappers.like(PortCheck::getPortName, portName);
+        }
+
+        if (StringUtils.isNotBlank(abundance)) {
+            wrappers.like(PortCheck::getAbundance, abundance);
         }
 
         Page<PortCheck> result = portCheckMapper.selectPage(new Page<>(pageNum, pageSize), wrappers);

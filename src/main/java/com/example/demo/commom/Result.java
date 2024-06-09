@@ -22,14 +22,14 @@ public class Result<T> {
     public static <T> Result<T> success() {
         Result<T> result = new Result<T>();
         result.setCode("0");
-        result.setMsg("成功");
+        result.setMsg("success");
         return result;
     }
 
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<T>(data);
         result.setCode("0");
-        result.setMsg("成功");
+        result.setMsg("success");
         return result;
     }
 

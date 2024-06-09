@@ -2,17 +2,13 @@ package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.LoginUser;
 import com.example.demo.commom.Result;
-import com.example.demo.entity.BookWithUser;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.utils.TokenUtils;
 
@@ -25,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
     @Resource
     UserMapper userMapper;
 
@@ -47,23 +44,21 @@ public class UserController {
         }
         String token = TokenUtils.genToken(res);
         res.setToken(token);
-        LoginUser loginuser = new LoginUser();
-        loginuser.addVisitCount();
+        LoginUser.addVisitCount();
         return Result.success(res);
     }
 
     @PostMapping
-    public Result<?> save(@RequestBody User user) {
+    public Result<?> add(@RequestBody User user) {
         if (user.getPassword() == null) {
-            user.setPassword("abc123456");
+            user.setPassword("123456");
         }
         userMapper.insert(user);
         return Result.success();
     }
 
     @PutMapping("/password")
-    public Result<?> update(@RequestParam Integer id,
-                            @RequestParam String password2) {
+    public Result<?> password(@RequestParam Integer id, @RequestParam String password2) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", id);
         User user = new User();
@@ -73,7 +68,7 @@ public class UserController {
     }
 
     @PutMapping
-    public Result<?> password(@RequestBody User user) {
+    public Result<?> update(@RequestBody User user) {
         userMapper.updateById(user);
         return Result.success();
     }
@@ -91,9 +86,9 @@ public class UserController {
     }
 
     @GetMapping
-    public Result<?> findPage(@RequestParam(defaultValue = "1") Integer pageNum,
-                              @RequestParam(defaultValue = "10") Integer pageSize,
-                              @RequestParam(defaultValue = "") String search) {
+    public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
+                          @RequestParam(defaultValue = "10") Integer pageSize,
+                          @RequestParam(defaultValue = "") String search) {
         LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
         if (StringUtils.isNotBlank(search)) {
             wrappers.like(User::getNickName, search);
@@ -104,12 +99,13 @@ public class UserController {
     }
 
     @GetMapping("/usersearch")
-    public Result<?> findPage2(@RequestParam(defaultValue = "1") Integer pageNum,
-                               @RequestParam(defaultValue = "10") Integer pageSize,
-                               @RequestParam(defaultValue = "") String search1,
-                               @RequestParam(defaultValue = "") String search2,
-                               @RequestParam(defaultValue = "") String search3,
-                               @RequestParam(defaultValue = "") String search4) {
+    public Result<?> list2(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "") String search1,
+            @RequestParam(defaultValue = "") String search2,
+            @RequestParam(defaultValue = "") String search3,
+            @RequestParam(defaultValue = "") String search4) {
         LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
         if (StringUtils.isNotBlank(search1)) {
             wrappers.like(User::getId, search1);

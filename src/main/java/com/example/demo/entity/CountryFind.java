@@ -14,7 +14,7 @@ public class CountryFind {
     @TableId(type = IdType.AUTO)
     Integer id;
 
-    Integer countryNum;
+    Integer biologyNum;
 
     Integer countryName;
 

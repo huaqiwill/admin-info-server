@@ -10,6 +10,7 @@ import com.example.demo.mapper.CountryFindMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 
 @RestController
@@ -19,13 +20,15 @@ public class CountryFindController {
     @Resource
     CountryFindMapper countryFindMapper;
 
-    @PostMapping("/save")
-    public Result<?> save(@RequestBody CountryFind country) {
-        if (country.getId() != null && countryFindMapper.selectById(country.getId()) != null) {
-            countryFindMapper.updateById(country);
-        } else {
-            countryFindMapper.insert(country);
-        }
+    @PostMapping
+    public Result<?> add(@RequestBody CountryFind country) {
+        countryFindMapper.insert(country);
+        return Result.success();
+    }
+
+    @PutMapping
+    public Result<?> update(@RequestBody CountryFind country) {
+        countryFindMapper.updateById(country);
         return Result.success();
     }
 
@@ -35,15 +38,26 @@ public class CountryFindController {
         return Result.success();
     }
 
+    @DeleteMapping
+    public Result<?> deleteBatch(@RequestParam List<Long> ids) {
+        countryFindMapper.deleteBatchIds(ids);
+        return Result.success();
+    }
+
     @GetMapping
     public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
                           @RequestParam(defaultValue = "10") Integer pageSize,
-                          @RequestParam(defaultValue = "") String cNum,
+                          @RequestParam(defaultValue = "") String biologyNum,
+                          @RequestParam(defaultValue = "") String countryName,
                           @RequestParam(defaultValue = "") String foundLocation) {
         LambdaQueryWrapper<CountryFind> wrappers = Wrappers.lambdaQuery();
 
-        if (StringUtils.isNotBlank(cNum)) {
-            wrappers.like(CountryFind::getCountryName, cNum);
+        if (StringUtils.isNotBlank(biologyNum)) {
+            wrappers.like(CountryFind::getBiologyNum, biologyNum);
+        }
+
+        if (StringUtils.isNotBlank(countryName)) {
+            wrappers.like(CountryFind::getCountryName, countryName);
         }
 
         if (StringUtils.isNotBlank(foundLocation)) {

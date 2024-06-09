@@ -10,6 +10,7 @@ import com.example.demo.mapper.PortFindMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 
 @RestController
@@ -19,14 +20,22 @@ public class PortFindController {
     @Resource
     PortFindMapper portFindMapper;
 
-    @PostMapping("/save")
-    public Result<?> save(@RequestBody PortFind country) {
-        if (country.getId() != null && portFindMapper.selectById(country.getId()) != null) {
-            portFindMapper.updateById(country);
-        } else {
-            portFindMapper.insert(country);
-        }
+    @PostMapping
+    public Result<?> add(@RequestBody PortFind country) {
+        portFindMapper.insert(country);
         return Result.success();
+    }
+
+    @PutMapping
+    public Result<?> update(@RequestBody PortFind country) {
+        portFindMapper.updateById(country);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    public Result<?> info(@PathVariable Long id) {
+        PortFind portFind = portFindMapper.selectById(id);
+        return Result.success(portFind);
     }
 
     @DeleteMapping("/{id}")
@@ -35,24 +44,30 @@ public class PortFindController {
         return Result.success();
     }
 
+    @DeleteMapping
+    public Result<?> deleteBatch(@PathVariable List<Long> ids) {
+        portFindMapper.deleteBatchIds(ids);
+        return Result.success();
+    }
+
     @GetMapping
     public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
                           @RequestParam(defaultValue = "10") Integer pageSize,
-                          @RequestParam(defaultValue = "") String cName,
-                          @RequestParam(defaultValue = "") String cMenShu,
-                          @RequestParam(defaultValue = "") String pName) {
+                          @RequestParam(defaultValue = "") String biologyName,
+                          @RequestParam(defaultValue = "") String portName,
+                          @RequestParam(defaultValue = "") String firstFoundLocation) {
         LambdaQueryWrapper<PortFind> wrappers = Wrappers.lambdaQuery();
 
-        if (StringUtils.isNotBlank(cName)) {
-            wrappers.like(PortFind::getBiologyName, cName);
+        if (StringUtils.isNotBlank(biologyName)) {
+            wrappers.like(PortFind::getBiologyName, biologyName);
         }
 
-        if (StringUtils.isNotBlank(cMenShu)) {
-            wrappers.like(PortFind::getBiologyBelongTo, cMenShu);
+        if (StringUtils.isNotBlank(portName)) {
+            wrappers.like(PortFind::getPortName, portName);
         }
 
-        if (StringUtils.isNotBlank(pName)) {
-            wrappers.like(PortFind::getPortName, pName);
+        if (StringUtils.isNotBlank(firstFoundLocation)) {
+            wrappers.like(PortFind::getFirstFoundLocation, firstFoundLocation);
         }
 
         Page<PortFind> result = portFindMapper.selectPage(new Page<>(pageNum, pageSize), wrappers);

@@ -10,6 +10,7 @@ import com.example.demo.mapper.BiologyMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/biology")
@@ -18,14 +19,22 @@ public class BiologyController {
     @Resource
     BiologyMapper biologyMapper;
 
-    @PostMapping("/save")
-    public Result<?> save(@RequestBody Biology biology) {
-        if (biology.getId() != null && biologyMapper.selectById(biology.getId()) != null) {
-            biologyMapper.updateById(biology);
-        } else {
-            biologyMapper.insert(biology);
-        }
+    @PostMapping
+    public Result<?> add(@RequestBody Biology biology) {
+        biologyMapper.insert(biology);
         return Result.success();
+    }
+
+    @PutMapping
+    public Result<?> update(@RequestBody Biology biology) {
+        biologyMapper.updateById(biology);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    public Result<?> info(@PathVariable Long id) {
+        Biology biology = biologyMapper.selectById(id);
+        return Result.success(biology);
     }
 
     @DeleteMapping("/{id}")
@@ -34,19 +43,30 @@ public class BiologyController {
         return Result.success();
     }
 
+    @DeleteMapping
+    public Result<?> deleteBatch(@RequestParam List<Long> ids) {
+        biologyMapper.deleteBatchIds(ids);
+        return Result.success();
+    }
+
     @GetMapping
     public Result<?> list(@RequestParam(defaultValue = "1") Integer pageNum,
                           @RequestParam(defaultValue = "10") Integer pageSize,
-                          @RequestParam(defaultValue = "") String cName,
-                          @RequestParam(defaultValue = "") String cMenShu) {
+                          @RequestParam(defaultValue = "") String name,
+                          @RequestParam(defaultValue = "") String belongTo,
+                          @RequestParam(defaultValue = "") String harm) {
         LambdaQueryWrapper<Biology> wrappers = Wrappers.lambdaQuery();
 
-        if (StringUtils.isNotBlank(cName)) {
-            wrappers.like(Biology::getName, cName);
+        if (StringUtils.isNotBlank(name)) {
+            wrappers.like(Biology::getName, name);
         }
 
-        if (StringUtils.isNotBlank(cMenShu)) {
-            wrappers.like(Biology::getBelongTo, cMenShu);
+        if (StringUtils.isNotBlank(belongTo)) {
+            wrappers.like(Biology::getBelongTo, belongTo);
+        }
+
+        if (StringUtils.isNotBlank(harm)) {
+            wrappers.like(Biology::getHarm, harm);
         }
 
         Page<Biology> result = biologyMapper.selectPage(new Page<>(pageNum, pageSize), wrappers);

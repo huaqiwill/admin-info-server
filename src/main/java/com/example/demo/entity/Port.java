@@ -19,7 +19,7 @@ public class Port {
 
     String name;
 
-    String country_name;
+    String countryName;
 
     String province;
 }
